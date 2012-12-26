@@ -1,7 +1,0 @@
-{"ts":1356495578130,"silentsave":true,"restoring":false,"patch":[[]],"length":0}
-{"contributors":[],"silentsave":false,"ts":1356495621371,"patch":[[{"diffs":[[1,"<h1>Share a tab - simple, beauty way to sync with other developers</h1>"]],"start1":0,"start2":0,"length1":0,"length2":71}]],"length":71,"saved":false}
-{"ts":1356495623929,"patch":[[{"diffs":[[0,"to sync "],[1,"a tab "],[0,"with oth"]],"start1":37,"start2":37,"length1":16,"length2":22}]],"length":77,"saved":false}
-{"ts":1356495634441,"patch":[[{"diffs":[[0,"ab -"],[-1," simple,"],[0," bea"]],"start1":13,"start2":13,"length1":16,"length2":8}]],"length":69,"saved":false}
-{"ts":1356495804660,"patch":[[{"diffs":[[0,"to sync "],[-1,"a"],[1,"Chrome"],[0," tab"],[1,"s"],[0," with ot"]],"start1":29,"start2":29,"length1":21,"length2":27}]],"length":75,"saved":false}
-{"ts":1356495807125,"patch":[[{"diffs":[[0,"velopers"],[1,"!"],[0,"</h1>"]],"start1":62,"start2":62,"length1":13,"length2":14}]],"length":76,"saved":false}
-{"ts":1356495953179,"patch":[[{"diffs":[[0,"b - "],[-1,"beauty"],[1,"simple"],[0," way"]],"start1":14,"start2":14,"length1":14,"length2":14}]],"length":76,"saved":false}

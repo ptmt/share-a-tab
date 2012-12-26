@@ -1,3 +1,0 @@
-{"ts":1356497785741,"silentsave":true,"restoring":false,"patch":[[{"diffs":[[1,"{\r\n    \"name\": \"share-a-tab\"\r\n  , \"version\": \"0.0.1\"\r\n  , \"dependencies\": {        \r\n       \"nib\": \"0.2.0\"\r\n    }\r\n}"]],"start1":0,"start2":0,"length1":0,"length2":116}]],"length":116}
-{"contributors":[],"silentsave":false,"ts":1356497947737,"patch":[[{"diffs":[[0,"0.2.0\"\r\n"],[1,"       , \"stylus\": \"0.19.0\"\r\n       , \"express\" : \"3.x\"\r\n"],[0,"    }\r\n}"]],"start1":100,"start2":100,"length1":16,"length2":73}]],"length":173,"saved":false}
-{"ts":1356498612848,"patch":[[{"diffs":[[0," \"3.x\"\r\n"],[1,"       , \"socket.io\" : \"0.9.x\"\r\n"],[0,"    }\r\n}"]],"start1":157,"start2":157,"length1":16,"length2":48}]],"length":205,"saved":false}
