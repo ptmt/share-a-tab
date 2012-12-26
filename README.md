@@ -1,2 +1,1 @@
-share-a-tab
-===========
+node.js backend for Share-a-Tab, simple way to sync Chrome tabs between developers.

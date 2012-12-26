@@ -1,1 +1,2 @@
 {"ts":1356501440075,"silentsave":true,"restoring":false,"patch":[[{"diffs":[[1,"share-a-tab\n==========="]],"start1":0,"start2":0,"length1":0,"length2":23}]],"length":23}
+{"contributors":[],"silentsave":false,"ts":1356501500495,"patch":[[{"diffs":[[-1,"share-a-tab\n==========="],[1,"node.js backend for Share-a-Tab, simple way to sync Chrome tabs between developers."]],"start1":0,"start2":0,"length1":23,"length2":83}]],"length":83,"saved":false}
