@@ -1,0 +1,18 @@
+<head>
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+<script type="text/javascript">
+
+  var socket = io.connect('http://share-a-tab.unknownexception.c9.io');
+  console.log (socket);
+  socket.on('connect', function () {
+    socket.emit('set nickname', prompt('What is your nickname?'));
+    socket.on('ready', function () {
+      console.log('Connected !');
+      socket.emit('msg', prompt('What is your message?'));
+    });
+  });
+</script>    
+</head>
+<body>
+<h1>this is client environment for a socket.io testing purpose</h1>
+</body>
