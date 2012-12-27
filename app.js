@@ -1,11 +1,11 @@
 var express = require('express');
 var io = require('socket.io');
-var levelup = require('levelup')
-var passport = require('passport')
+var levelup = require('levelup');
+var passport = require('passport');
 var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
   
 var app = express()
-  , server = require('http').createServer(app)
+  , server = require('http').createServer(app);
 
 server = server.listen(process.env.PORT);
 io = io.listen(server);
@@ -78,28 +78,31 @@ app.get('/oauth2callback',
 
 io.sockets.on('connection', function (socket) {
    
-  socket.on('send_userid', function (userid) {
+  socket.on('set userid', function (userid) {
      socket.join(userid);    
-     socket.set('userid', userid, function () { socket.emit('ready'); });
-  }
+     socket.set('userid', userid, function () { socket.emit('ready', io.sockets.manager.rooms); });     
+  });  
   
-  
-  socket.on('send_syncdata', function (syncdata) {
+  socket.on('upload_syncdata', function (syncdata) {
       //saveHref(href);
-      console.log(JSON.stringify(syncdata));
-      socket.set('syncdata', syncdata, function () { socket.emit('syncdata_sent'); });
-      socket.broadcast.to(syncdata.to).emit('recieve_syncdata');
+      console.log('=======' + JSON.stringify(syncdata)); 
+      //socket.join(syncdata.to);
+      socket.emit('trying_to_notify', syncdata.to);
+      io.sockets.in(syncdata.to).emit('download_syncdata', syncdata);      
   });
-
-  socket.on('msg', function () {
-    socket.get('nickname', function (err, name) {
-      console.log('Chat message by ', name);
-    });
+  
+  socket.on('download_complete', function (from) {
+      console.log('download_complete');
+   //   socket.get('userid', function (err, name) {
+   //       console.log('almost complete with ' + name);
+      io.sockets.in(from).emit('finish_sync');
+   //   });
   });
+  
 });
 
 var db_options = { createIfMissing: true, errorIfExists: false }
-var db = levelup('./mydb', db_options)
+var db = levelup('./mydb', db_options);
 
 var saveHref = function () {
     // 2) put a key & value
@@ -112,6 +115,6 @@ var saveHref = function () {
     
         // ta da!
         console.log('name=' + value)
-      })
-    })
+      });
+    });
 }

@@ -3,40 +3,46 @@
 
 <script type="text/javascript">
   var socket = io.connect('http://share-a-tab.unknownexception.c9.io'); 
-  
+  var useremail = '<%=user._json.email%>';
   $().ready(function () {
     trace('document ready');
-    socket.emit("send_userid", <%= user.id %>)
-    socket.on('ready', function () {            
-        trace('waiting for sync');
-    });
+    socket.emit("set userid", useremail)
+    socket.on('connect', function () {  
+        trace('websocket is open');
+        socket.on('ready', function (rooms) {            
+            trace('waiting for incoming sync request.. ' + JSON.stringify(rooms));
+        });
+        socket.on('download_syncdata', function (syncdata) {           
+           trace('syncdata downloaded.. ' + JSON.stringify(syncdata));
+           socket.emit('download_complete', syncdata.from);            
+        });
+        socket.on('finish_sync', function () {
+           trace('operation complete\n=================');
+        });
+      });
+    
     
     $(".synctab").on('click', function (e) {
         var syncdata = {
             href : document.location.href,
-            to: $('input[name=reciever-email]').val()
+            from: useremail,
+            to: $('input[name=reciever-email]').val(),
+            cookie: document.cookie
         }
-       socket.emit('send_syncdata', syncdata);  
+       socket.emit('upload_syncdata', syncdata);  
        trace('syncdata sending..');
-       socket.on('syncdata_sent', function () {            
-          trace('syncdata sent');
+       socket.on('trying_to_notify', function () {            
+          trace('trying_to_notify');
        });
     });
   });
-  socket.on('connect', function () {  
-    trace('successfully connect to websocket server')
-    socket.on('recieve_syncdata', function (syncdata) {
-       trace('syncdata recieving..' + JSON.stringify(syncdata));
-       socket.emit('recieve_complete', syncdata);      
-      //socket.emit('msg', prompt('What is your message?'));
-    });
-  });
+  
     function trace (str) {
-        $('.debug').append(str + '\n')
+        $('.debug').append('[' + socket.socket.sessionid +']: ' + str + '\n')
     }
 </script>    
 
-<h1>//this is client environment for a socket.io testing purpose</h1>
+<h1>//socket.io test environment <%=user._json.email%></h1>
 <div>
     Hello, <%= user.displayName %>. Wonna sync this tab with <input type="textbox" placeholder="reciever email" name="reciever-email" /> 
 with cookies <input type="checkbox" name="withcookies" />
