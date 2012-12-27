@@ -83,20 +83,14 @@ io.sockets.on('connection', function (socket) {
      socket.set('userid', userid, function () { socket.emit('ready', io.sockets.manager.rooms); });     
   });  
   
-  socket.on('upload_syncdata', function (syncdata) {
-      //saveHref(href);
-      console.log('=======' + JSON.stringify(syncdata)); 
-      //socket.join(syncdata.to);
+  socket.on('upload_syncdata', function (syncdata) {     
       socket.emit('trying_to_notify', syncdata.to);
       io.sockets.in(syncdata.to).emit('download_syncdata', syncdata);      
   });
   
   socket.on('download_complete', function (from) {
-      console.log('download_complete');
-   //   socket.get('userid', function (err, name) {
-   //       console.log('almost complete with ' + name);
-      io.sockets.in(from).emit('finish_sync');
-   //   });
+      console.log('download_complete');   
+      io.sockets.in(from).emit('finish_sync');   
   });
   
 });
@@ -104,16 +98,11 @@ io.sockets.on('connection', function (socket) {
 var db_options = { createIfMissing: true, errorIfExists: false }
 var db = levelup('./mydb', db_options);
 
-var saveHref = function () {
-    // 2) put a key & value
+var saveHref = function () {    
     db.put('name', 'LevelUP', function (err) {
-      if (err) return console.log('Ooops!', err) // some kind of I/O error
-    
-      // 3) fetch by key
+      if (err) return console.log('Ooops!', err) // some kind of I/O error    
       db.get('name', function (err, value) {
-        if (err) return console.log('Ooops!', err) // likely the key was not found
-    
-        // ta da!
+        if (err) return console.log('Ooops!', err) // likely the key was not found    
         console.log('name=' + value)
       });
     });
