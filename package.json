@@ -8,5 +8,8 @@
        , "socket.io" : "0.9.x"
        , "levelup": "0.4.x"
        , "passport-google-oauth" : "0.1.x"
+       , "ejs": ">= 0.0.0"
+       , "passport": ">= 0.0.0"
+      
     }
 }

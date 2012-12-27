@@ -3,7 +3,7 @@ var io = require('socket.io');
 var levelup = require('levelup')
 var passport = require('passport')
 var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
-
+  
 var app = express()
   , server = require('http').createServer(app)
 
@@ -38,17 +38,23 @@ passport.use(new GoogleStrategy({
     });
   }
 ));
-
-app.use(express.cookieParser());
-app.use(express.session({
-    secret: "skjghskdjfhbqigohqdiouk"
-}));
-app.use(passport.initialize());
-app.use(passport.session());
+app.configure(function() {
+    app.set('views', __dirname);
+    app.set('view engine', 'ejs');
+    app.use(express.bodyParser());
+    app.use(express.methodOverride());
+    app.use(express.cookieParser());
+    app.use(express.session({
+        secret: "skjghskdjfhbqigohqdiouk"
+    }));
+    app.use(passport.initialize());
+    app.use(passport.session());
+});
 
 app.get('/', function(req, res){
-  if (req.isAuthenticated()) { 
-      res.sendfile('client_dummy.html'); }
+  if (req.isAuthenticated()) {       
+    res.render('index', { user: req.user});
+  }
   else {
     res.redirect('/auth/google');
   }
@@ -66,14 +72,23 @@ app.get('/auth/google',
 app.get('/oauth2callback', 
   passport.authenticate('google', { failureRedirect: '/login' }),
   function(req, res) {
+    console.log("authorized with google");
     res.redirect('/');
   });
 
 io.sockets.on('connection', function (socket) {
-    
-  socket.on('set location', function (href) {
-      saveHref(href);
-      socket.set('location', href, function () { socket.emit('ready'); });
+   
+  socket.on('send_userid', function (userid) {
+     socket.join(userid);    
+     socket.set('userid', userid, function () { socket.emit('ready'); });
+  }
+  
+  
+  socket.on('send_syncdata', function (syncdata) {
+      //saveHref(href);
+      console.log(JSON.stringify(syncdata));
+      socket.set('syncdata', syncdata, function () { socket.emit('syncdata_sent'); });
+      socket.broadcast.to(syncdata.to).emit('recieve_syncdata');
   });
 
   socket.on('msg', function () {
@@ -83,8 +98,8 @@ io.sockets.on('connection', function (socket) {
   });
 });
 
-var options = { createIfMissing: true, errorIfExists: false }
-var db = levelup('./mydb', options)
+var db_options = { createIfMissing: true, errorIfExists: false }
+var db = levelup('./mydb', db_options)
 
 var saveHref = function () {
     // 2) put a key & value

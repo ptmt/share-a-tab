@@ -1,0 +1,48 @@
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+
+<script type="text/javascript">
+  var socket = io.connect('http://share-a-tab.unknownexception.c9.io'); 
+  
+  $().ready(function () {
+    trace('document ready');
+    socket.emit("send_userid", <%= user.id %>)
+    socket.on('ready', function () {            
+        trace('waiting for sync');
+    });
+    
+    $(".synctab").on('click', function (e) {
+        var syncdata = {
+            href : document.location.href,
+            to: $('input[name=reciever-email]').val()
+        }
+       socket.emit('send_syncdata', syncdata);  
+       trace('syncdata sending..');
+       socket.on('syncdata_sent', function () {            
+          trace('syncdata sent');
+       });
+    });
+  });
+  socket.on('connect', function () {  
+    trace('successfully connect to websocket server')
+    socket.on('recieve_syncdata', function (syncdata) {
+       trace('syncdata recieving..' + JSON.stringify(syncdata));
+       socket.emit('recieve_complete', syncdata);      
+      //socket.emit('msg', prompt('What is your message?'));
+    });
+  });
+    function trace (str) {
+        $('.debug').append(str + '\n')
+    }
+</script>    
+
+<h1>//this is client environment for a socket.io testing purpose</h1>
+<div>
+    Hello, <%= user.displayName %>. Wonna sync this tab with <input type="textbox" placeholder="reciever email" name="reciever-email" /> 
+with cookies <input type="checkbox" name="withcookies" />
+
+    <input type="button" class="synctab" value="Send" />
+</div>
+
+<pre class="debug">
+</pre>
