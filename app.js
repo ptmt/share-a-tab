@@ -1,6 +1,6 @@
 var express = require('express');
 var io = require('socket.io');
-var levelup = require('levelup');
+
 var passport = require('passport');
 var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
   
@@ -94,7 +94,8 @@ io.sockets.on('connection', function (socket) {
   });
   
 });
-
+/*
+do not work at windows 
 var db_options = { createIfMissing: true, errorIfExists: false }
 var db = levelup('./mydb', db_options);
 
@@ -106,4 +107,5 @@ var saveHref = function () {
         console.log('name=' + value)
       });
     });
+    */
 }
