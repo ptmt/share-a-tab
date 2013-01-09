@@ -24,7 +24,7 @@ passport.deserializeUser(function(obj, done) {
 passport.use(new GoogleStrategy({
     clientID: GOOGLE_CLIENT_ID,
     clientSecret: GOOGLE_CLIENT_SECRET,
-    callbackURL: "http://share-a-tab.unknownexception.c9.io/oauth2callback"
+    callbackURL: "https://share-a-tab.phinitive.com/oauth2callback"
   },
   function(accessToken, refreshToken, profile, done) {
     // asynchronous verification, for effect...
