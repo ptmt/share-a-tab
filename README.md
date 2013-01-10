@@ -1,5 +1,4 @@
-Share-a-Tab, simple way to keep synchronized Chrome tabs between developers
+Share-a-Tab is simple way to keep Chrome tabs synchronized between developers.
 
-node.js as a backend 
-chrome plugin as a frontend (@romanyanke)
+Share-a-Tab using Mode.js as a backend and Chrome plugin as a frontend. Deployed with github to Windows Azure.
 

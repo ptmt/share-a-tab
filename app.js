@@ -69,6 +69,19 @@ app.get('/auth/google',
     // function will not be called.
   });
   
+app.get('/home',  
+  function(req, res){
+    res.redirect('http://google.com/');
+  });
+
+app.get('/auth/google',
+  passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/userinfo.profile',
+                                            'https://www.googleapis.com/auth/userinfo.email'] }),
+  function(req, res){
+    // The request will be redirected to Google for authentication, so this
+    // function will not be called.
+  });
+  
 app.get('/oauth2callback', 
   passport.authenticate('google', { failureRedirect: '/login' }),
   function(req, res) {
