@@ -1,17 +1,39 @@
 <!doctype html>
+
+<link href='http://fonts.googleapis.com/css?family=Dosis:200' rel='stylesheet' type='text/css'>
+
 <style type="text/css">
-	#mainPopup {
-		padding: 10px;
-		height: 200px;
-		width: 400px;
-		font-family: Helvetica, Ubuntu, Arial, sans-serif;
+  body {background-color:#eee;}
+  body, input {font-family: 'Dosis', sans-serif;}
+    #mainPopup {
+		padding: 0px;
+    margin:0px;
+		height: 100px;
+		width: 300px;    
 	}
+  .disabled {
+    opacity:0.2;
+  }
 	h1 {
+    paddin:0;
 		font-size: 2em;
 	}
+  .logout-btn {color:black;font-size:.9em;position:absolute;right:20px;top:0px;}
+  input {font-size:1.4em;}
+  #loaderImage {display:none;position:absolute;width: 300px;margin:auto;}
 </style>
 
+<div id="loaderImage"><img src="/images/loader.gif"/></div>
+
 <div id="mainPopup">
-<h1>Hello extensionizr!</h1>
-<p>To shut this popup down, edit the manifest file and remove the "default popup" key. To edit it, just edit ext/browser_action/browser_action.html. The CSS is there, too.</p>
+  <h1>Share a tab</h1>  
+  <input type="textbox" placeholder="reciever email" name="reciever-email" required/> <input type="checkbox" name="cookies-flag" id="cookies-flag" /><label for="cookies-flag">cookies </label>
+  <p>
+    <input type="button" class="share-btn" value="Share!" />
+  </p>
+
+  <p><a href="#logout" class="logout-btn">sign out</a>
 </div>
+
+<script type="text/javascript" src="/js/jquery-1.8.3.min.js"></script>    <!-- time to move on native javascript -->
+<script type="text/javascript" src="/js/share-a-tab.js"></script>
