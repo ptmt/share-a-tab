@@ -1,0 +1,10 @@
+{
+    "name": {
+		"message": "Скинь ссылку",
+		"description": "extension name"
+	},
+    "desc": {
+    	"message": "Простой способ скинуть ссылку другому пользователю",
+		"description": "extension description"
+	}
+}
