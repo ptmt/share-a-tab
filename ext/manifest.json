@@ -1,8 +1,8 @@
 {
-  "name": "Share A Tab",
-  "version": "0.2.0",
+  "name": "__MSG_name__",
+  "version": "0.2.1",
   "manifest_version": 3,
-  "description": "Simple way to share Chrome tab",
+  "description": "__MSG_desc__",
   "homepage_url": "http://share-a-tab.phinitive.com/home",
   "icons": {
     "16": "icons/icon16.png",
