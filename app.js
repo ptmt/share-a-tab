@@ -71,7 +71,7 @@ app.get('/auth/google',
   
 app.get('/home',  
   function(req, res){
-    res.redirect('http://google.com/');
+    res.redirect('https://chrome.google.com/webstore/detail/share-a-tab/hbkcjcepcamiepahcheeoggfifmljdna');
   });
 
 app.get('/auth/google',
