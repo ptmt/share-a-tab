@@ -64,22 +64,12 @@ app.get('/', function(req, res){
 app.get('/auth/google',
   passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/userinfo.profile',
                                             'https://www.googleapis.com/auth/userinfo.email'] }),
-  function(req, res){
-    // The request will be redirected to Google for authentication, so this
-    // function will not be called.
+  function(req, res){   
   });
   
 app.get('/home',  
   function(req, res){
     res.redirect('https://chrome.google.com/webstore/detail/share-a-tab/hbkcjcepcamiepahcheeoggfifmljdna');
-  });
-
-app.get('/auth/google',
-  passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/userinfo.profile',
-                                            'https://www.googleapis.com/auth/userinfo.email'] }),
-  function(req, res){
-    // The request will be redirected to Google for authentication, so this
-    // function will not be called.
   });
   
 app.get('/oauth2callback', 

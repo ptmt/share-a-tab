@@ -26,9 +26,26 @@
 
 var prepare = function (useremail) {
 
+	setInterval (checkAvaibility, 10000);
+
 	var trace = function (str) {
 	  $('.debug').append('[' + socket.socket.sessionid +']: ' + str + '\n');
 	  console.log(str);
+	}
+
+
+	var checkAvaibility = function () {
+		socket.emit("set userid", useremail)
+			socket.on('ready', function (rooms) {                    	
+			    chrome.storage.sync.set({'rooms': rooms}, function() {          
+			        console.log ('room list refreshed');
+			    });				
+				var s = _.map(_.filter(_.keys(rooms), function (f) { return (f != "/" + useremail)}), function (x) { return "<li data-room-id='" + x + "'>" + ((x == "") ? "/all" : x) + "</li>"; }); 
+           		trace('available rooms: ' + JSON.stringify(s));
+           		chrome.extension.sendMessage({action:"userlist", rooms: s}, function(response) {
+	              trace(response);
+	            });
+        	});	 	
 	}
 
   	var socket = io.connect('https://share-a-tab.phinitive.com/'); 
@@ -36,7 +53,7 @@ var prepare = function (useremail) {
 	//example of using a message handler from the inject scripts
 	chrome.extension.onMessage.addListener(
 	  function(request, sender, sendResponse) {
-	  	//notify("message recieved", JSON.stringify(request));
+	  	trace("message recieved " + JSON.stringify(request));
 		if (request.action == "send") {
 			socket.emit('upload_syncdata', request);  
 			trace('syncdata sending..');
@@ -44,18 +61,21 @@ var prepare = function (useremail) {
 				trace('trying_to_notify');
 			});
 		}
+		if (request.action == "get_list") {
+			checkAvaibility();
+		}
 	  });
   
   //$().ready(function () {
-    trace('try to connect, using ' + useremail);
-    socket.emit("set userid", useremail)
+    trace('set userid = ' + useremail);
+    
     socket.on('connect', function () {  
         trace('websocket is open');
         
-        socket.on('ready', function (rooms) {            
-        	//notify('connection successfull', "waiting for incoming request");
-            trace('waiting for incoming sync request.. ' + JSON.stringify(rooms));
-        });
+      //  socket.on('ready', function (rooms) {            
+      //  	//notify('connection successfull', "waiting for incoming request");
+      //      trace('waiting for incoming sync request.. ' + JSON.stringify(rooms));
+      //  });
         socket.on('download_syncdata', function (syncdata) {           
            trace('syncdata downloaded.. ' + syncdata.href);           
            chrome.tabs.create(	{ 'url' : syncdata.href });

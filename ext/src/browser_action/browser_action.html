@@ -15,24 +15,26 @@
     opacity:0.2;
   }
 	h1 {
-    paddin:0;
+    padding:0;
+    margin:0;
 		font-size: 2em;
 	}
-  .logout-btn {color:black;font-size:.9em;position:absolute;right:20px;top:0px;}
+  .top-panel {font-size:.9em;position:absolute;right:20px;top:0px;}
+  .top-panel a {color:black;}
   input {font-size:1.4em;}
   #loaderImage {display:none;position:absolute;width: 300px;margin:auto;}
+  ul.online-rooms { list-style-type: none; margin:0;padding:0;-webkit-padding-start:0px;}
+  .online-rooms li {cursor: pointer; list-style-type: none; margin:0; padding-top:5px;}
+  .online-rooms li:hover {background:#fff;}
 </style>
 
 <div id="loaderImage"><img src="/images/loader.gif"/></div>
 
 <div id="mainPopup">
   <h1>Share a tab</h1>  
-  <input type="textbox" placeholder="reciever email" name="reciever-email" required/> <input type="checkbox" name="cookies-flag" id="cookies-flag" /><label for="cookies-flag">cookies </label>
-  <p>
-    <input type="button" class="share-btn" value="Share!" />
-  </p>
-
-  <p><a href="#logout" class="logout-btn">sign out</a>
+  <ul class="online-rooms">
+  </ul>
+  <p class="top-panel"><a href="#refresh" class="refresh-btn">refresh</a> | <a href="#logout" class="logout-btn">sign out</a>
 </div>
 
 <script type="text/javascript" src="/js/jquery-1.8.3.min.js"></script>    <!-- time to move on native javascript -->
