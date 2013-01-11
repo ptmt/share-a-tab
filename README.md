@@ -1,3 +1,5 @@
+#Instant tab sharing
+
 Share-a-Tab is a Chrome plugin built with lightweight Node.js app as a backend. #Socket.io #Express #Azure 
 
 There is some known issues with privacy. Recommend to use your own node.js server at this moment. 
