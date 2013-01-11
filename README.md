@@ -7,11 +7,10 @@ Also Available at [Google Chrome Store] (https://chrome.google.com/webstore/deta
 
 ##TODO:
 
-- cookies transfers
-- window.console
-- quick contacts to share
+- send document.cookie
+- send window.console
+- white list or black list
 - groups subscribtions
-- 
 
 ##License
 
