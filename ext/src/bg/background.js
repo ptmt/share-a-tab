@@ -1,6 +1,5 @@
  chrome.storage.sync.get('email', function(data) { 
-     console.log (data, data.email, data && data.email);
-
+   
     if (data && data.email) {         	
     	prepare(data.email);
     }
@@ -11,7 +10,7 @@
 
 		chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 			if (tab.url && tab.url == "https://share-a-tab.phinitive.com/" && changeInfo.status == "complete") {
-				//alert (JSON.stringify(changeInfo));
+			
 				chrome.storage.sync.set({'email': tab.title}, function() {
 				    // Notify that we saved.
 				    notify('email saved', tab.title);
@@ -26,13 +25,11 @@
 
 var prepare = function (useremail) {
 
-	setInterval (checkAvaibility, 10000);
+	window.setInterval (function () { checkAvaibility(); } , 10000);
 
-	var trace = function (str) {
-	  $('.debug').append('[' + socket.socket.sessionid +']: ' + str + '\n');
+	var trace = function (str) {	  
 	  console.log(str);
 	}
-
 
 	var checkAvaibility = function () {
 		socket.emit("set userid", useremail)
@@ -50,7 +47,6 @@ var prepare = function (useremail) {
 
   	var socket = io.connect('https://share-a-tab.phinitive.com/'); 
 
-	//example of using a message handler from the inject scripts
 	chrome.extension.onMessage.addListener(
 	  function(request, sender, sendResponse) {
 	  	trace("message recieved " + JSON.stringify(request));
@@ -65,17 +61,12 @@ var prepare = function (useremail) {
 			checkAvaibility();
 		}
 	  });
-  
-  //$().ready(function () {
+ 
+
     trace('set userid = ' + useremail);
     
     socket.on('connect', function () {  
         trace('websocket is open');
-        
-      //  socket.on('ready', function (rooms) {            
-      //  	//notify('connection successfull', "waiting for incoming request");
-      //      trace('waiting for incoming sync request.. ' + JSON.stringify(rooms));
-      //  });
         socket.on('download_syncdata', function (syncdata) {           
            trace('syncdata downloaded.. ' + syncdata.href);           
            chrome.tabs.create(	{ 'url' : syncdata.href });
@@ -88,18 +79,12 @@ var prepare = function (useremail) {
            });
         });
       });
-    
-    
- // });
-
 	
 }
 
-
-
 var notify = function (title, body) {
 	var notification = webkitNotifications.createNotification(
-	  '48.png',  // icon url - can be relative
+	  '/icons/icon48.png',  // icon url - can be relative
 	  title,  // notification title
 	  body  // notification body text
 	);
