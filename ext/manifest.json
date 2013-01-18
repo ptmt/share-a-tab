@@ -1,7 +1,7 @@
 {
   "name": "__MSG_name__",
-  "version": "0.3.1",
-  "manifest_version": 5,
+  "version": "0.3.2",
+  "manifest_version": 6,
   "description": "__MSG_desc__",
   "homepage_url": "http://share-a-tab.phinitive.com/home",
   "icons": {
