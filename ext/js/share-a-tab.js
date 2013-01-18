@@ -67,11 +67,13 @@ var connectEvents = function () {
 
     chrome.storage.sync.get('rooms', function(data) {  
         if (data.rooms)   {
+          console.log ('room is not empty?' + JSON.stringify(data.rooms));
           $('.online-rooms').html(data.rooms);                   
           connectEvents();
         }
-        else 
+        else {
           refreshRooms();
+        }
     });
 
     $(".refresh-btn").on("click", function () { refreshRooms(); })
