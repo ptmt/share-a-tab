@@ -1,19 +1,18 @@
  chrome.storage.sync.get('email', function(data) { 
-   
     if (data && data.email) {         	
     	prepare(data.email);
     }
     else {
-    	notify("not authorized", JSON.stringify(data));
+    	console.log("not authorized", JSON.stringify(data));
 
     	chrome.tabs.create(	{ 'url' : 'https://share-a-tab.phinitive.com/' });
 
 		chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 			if (tab.url && tab.url == "https://share-a-tab.phinitive.com/" && changeInfo.status == "complete") {
-			
+				//alert (JSON.stringify(changeInfo));
 				chrome.storage.sync.set({'email': tab.title}, function() {
 				    // Notify that we saved.
-				    notify('email saved', tab.title);
+				    console.log('email saved', tab.title);
 				    prepare(tab.title);
 				  });
 				
@@ -24,29 +23,36 @@
 
 
 var prepare = function (useremail) {
-
-	window.setInterval (function () { checkAvaibility(); } , 10000);
-
-	var trace = function (str) {	  
-	  console.log(str);
+	try {
+		var socket = io.connect('https://share-a-tab.phinitive.com/'); 
 	}
+	catch (err) {
+		notify("Please, accept a certificate", "SSL certificate connection issue");
+		chrome.tabs.create(	{ 'url' : 'https://share-a-tab.phinitive.com/' });
+	}
+	var trace = function (str) {
+	  //$('.debug').append('[' + socket.socket.sessionid +']: ' + str + '\n');
+	  console.log(useremail, str);
+	}
+
 
 	var checkAvaibility = function () {
-		socket.emit("set userid", useremail)
-			socket.on('ready', function (rooms) {                    	
-			    chrome.storage.sync.set({'rooms': rooms}, function() {          
-			        console.log ('room list refreshed');
-			    });				
-				var s = _.map(_.filter(_.keys(rooms), function (f) { return (f != "/" + useremail)}), function (x) { return "<li data-room-id='" + x + "'>" + ((x == "") ? "/all" : x) + "</li>"; }); 
-           		trace('available rooms: ' + JSON.stringify(s));
-           		chrome.extension.sendMessage({action:"userlist", rooms: s}, function(response) {
-	              trace(response);
-	            });
-        	});	 	
+		socket.emit("set userid", useremail);
+		socket.on('ready', function (rooms) {                    			  		
+			var s = _.map(_.filter(_.keys(rooms), function (f) { return (f != "/" + useremail)}), function (x) { return "<li data-room-id='" + x + "'>" + ((x == "") ? "/all" : x) + "</li>"; }); 
+			chrome.storage.sync.set({'rooms': s}, function() {          
+		        console.log ('room list refreshed');
+		    });		
+       		trace('available rooms: ' + JSON.stringify(s));
+       		chrome.extension.sendMessage({action:"userlist", 'rooms': s}, function(response) {
+              trace('sending response to browser action');
+            });
+    	});	 	
 	}
 
-  	var socket = io.connect('https://share-a-tab.phinitive.com/'); 
+  	
 
+	//example of using a message handler from the inject scripts
 	chrome.extension.onMessage.addListener(
 	  function(request, sender, sendResponse) {
 	  	trace("message recieved " + JSON.stringify(request));
@@ -61,12 +67,19 @@ var prepare = function (useremail) {
 			checkAvaibility();
 		}
 	  });
- 
+  
+  //$().ready(function () {
+    trace('prepare function was executed with useremail=' + useremail);
 
-    trace('set userid = ' + useremail);
+    checkAvaibility();
     
     socket.on('connect', function () {  
         trace('websocket is open');
+        
+      //  socket.on('ready', function (rooms) {            
+      //  	//notify('connection successfull', "waiting for incoming request");
+      //      trace('waiting for incoming sync request.. ' + JSON.stringify(rooms));
+      //  });
         socket.on('download_syncdata', function (syncdata) {           
            trace('syncdata downloaded.. ' + syncdata.href);           
            chrome.tabs.create(	{ 'url' : syncdata.href });
@@ -79,12 +92,18 @@ var prepare = function (useremail) {
            });
         });
       });
+    
+    
+ // });
+
 	
 }
 
+
+
 var notify = function (title, body) {
 	var notification = webkitNotifications.createNotification(
-	  '/icons/icon48.png',  // icon url - can be relative
+	  '48.png',  // icon url - can be relative
 	  title,  // notification title
 	  body  // notification body text
 	);
