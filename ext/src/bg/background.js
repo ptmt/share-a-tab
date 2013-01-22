@@ -38,23 +38,17 @@ var prepare = function (useremail) {
 		notify("SSL certificate connection issue", "Please, accept a certificate and refresh background.html");
 		openTab('https://share-a-tab.phinitive.com/');		
 	}
+
+	
 	var trace = function (str) {	  
 	  console.log(str, useremail);
 	}
 
 
 	var checkAvaibility = function () {
+		trace('step 3: checkAvaibility');		
 		socket.emit("set userid", useremail);
-		socket.on('ready', function (rooms) {                    			  		
-			var s = _.map(_.filter(_.keys(rooms), function (f) { return (f != "/" + useremail)}), function (x) { return "<li data-room-id='" + x + "'>" + ((x == "") ? "/all" : x) + "</li>"; }); 
-			chrome.storage.sync.set({'rooms': s}, function() {          
-		        trace ('step 5: room list refreshed');
-		    });		
-       		trace('step 5a: available rooms: ' + JSON.stringify(s));
-       		chrome.extension.sendMessage({action:"userlist", 'rooms': s}, function(response) {
-              //trace('step 6: sending response to browser action');
-            });
-    	});	 	
+			
 	}
 
   	
@@ -75,31 +69,46 @@ var prepare = function (useremail) {
 		}
 	  });
   
-  //$().ready(function () {
-    trace('step 3: prepare function call with useremail=' + useremail);
+  //$().ready(function () {   
 
-    checkAvaibility();
-    
+    window.setInterval (function () { checkAvaibility(); } , 10000);
+        
     socket.on('connect', function () {  
         trace('step 4: websocket is open');
         
       //  socket.on('ready', function (rooms) {            
       //  	//notify('connection successfull', "waiting for incoming request");
       //      trace('waiting for incoming sync request.. ' + JSON.stringify(rooms));
-      //  });
-        socket.on('download_syncdata', function (syncdata) {           
-           trace('step 9: syncdata downloaded from node.js server ' + syncdata.href);           
-           openTab(	syncdata.href );
-           socket.emit('download_complete', syncdata.from);            
-        });
-        socket.on('finish_sync', function () {
-           trace('FINAL operation complete \n=================\n\n');
-           chrome.extension.sendMessage({action:"complete"}, function(response) {
-              trace(response);
-           });
-        });
+      //  });        
       });
     
+    socket.on('download_syncdata', function (syncdata) {           
+       trace('step 9: syncdata downloaded from node.js server ' + syncdata.href);           
+       openTab(	syncdata.href );
+       socket.emit('download_complete', syncdata.from);            
+    });
+    socket.on('finish_sync', function () {
+       trace('FINAL operation complete \n=================\n\n');
+       chrome.extension.sendMessage({action:"complete"}, function(response) {
+          trace(response);
+       });
+    });
+
+    socket.on('ready', function (rooms) {                    			  		
+		var s = _.map(_.filter(_.keys(rooms), function (f) { return (f != "/" + useremail)}), function (x) { return "<li data-room-id='" + x + "'>" + ((x == "") ? "/all" : x) + "</li>"; }); 
+		chrome.storage.sync.set({'rooms': s}, function() {          
+	        trace ('step 5: room list refreshed');
+	    });		
+   		trace('step 5a: available rooms: ' + JSON.stringify(s));
+   		chrome.extension.sendMessage({action:"userlist", 'rooms': s}, function(response) {
+          //trace('step 6: sending response to browser action');
+        });
+	});	 
+
+    // Add a disconnect listener
+	socket.on('disconnect',function() {
+	  console.log('The client has disconnected');
+	});
     
  // });
 

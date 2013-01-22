@@ -79,7 +79,7 @@ app.get('/oauth2callback',
     res.redirect('/');
   });
 
-io.set('transports', [ 'websocket']);
+//io.set('transports', [ 'websocket']);
 
 io.sockets.on('connection', function (socket) {
    
