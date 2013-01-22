@@ -79,6 +79,8 @@ app.get('/oauth2callback',
     res.redirect('/');
   });
 
+io.set('transports', [ 'websocket']);
+
 io.sockets.on('connection', function (socket) {
    
   socket.on('set userid', function (userid) {

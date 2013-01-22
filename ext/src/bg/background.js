@@ -1,19 +1,27 @@
- chrome.storage.sync.get('email', function(data) { 
+var openTab = function (url) {
+    chrome.tabs.query({'url': url}, function (result) {
+		if (result.length == 0) {
+			chrome.tabs.create(	{ 'url' :  url });			
+		}
+	});
+}
+chrome.storage.sync.get('email', function(data) { 
     if (data && data.email) {         	
     	prepare(data.email);
     }
     else {
-    	console.log("not authorized", JSON.stringify(data));
+    	console.log("step 1: try to authorize", JSON.stringify(data));
 
-    	chrome.tabs.create(	{ 'url' : 'https://share-a-tab.phinitive.com/' });
+    	openTab('https://share-a-tab.phinitive.com/');
 
 		chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 			if (tab.url && tab.url == "https://share-a-tab.phinitive.com/" && changeInfo.status == "complete") {
 				//alert (JSON.stringify(changeInfo));
 				chrome.storage.sync.set({'email': tab.title}, function() {
 				    // Notify that we saved.
-				    console.log('email saved', tab.title);
+				    console.log('step 2: email has been saved', tab.title);
 				    prepare(tab.title);
+				    chrome.tabs.remove(tab.id);
 				  });
 				
 			}
@@ -27,12 +35,11 @@ var prepare = function (useremail) {
 		var socket = io.connect('https://share-a-tab.phinitive.com/'); 
 	}
 	catch (err) {
-		notify("Please, accept a certificate", "SSL certificate connection issue");
-		chrome.tabs.create(	{ 'url' : 'https://share-a-tab.phinitive.com/' });
+		notify("SSL certificate connection issue", "Please, accept a certificate and refresh background.html");
+		openTab('https://share-a-tab.phinitive.com/');		
 	}
-	var trace = function (str) {
-	  //$('.debug').append('[' + socket.socket.sessionid +']: ' + str + '\n');
-	  console.log(useremail, str);
+	var trace = function (str) {	  
+	  console.log(str, useremail);
 	}
 
 
@@ -41,11 +48,11 @@ var prepare = function (useremail) {
 		socket.on('ready', function (rooms) {                    			  		
 			var s = _.map(_.filter(_.keys(rooms), function (f) { return (f != "/" + useremail)}), function (x) { return "<li data-room-id='" + x + "'>" + ((x == "") ? "/all" : x) + "</li>"; }); 
 			chrome.storage.sync.set({'rooms': s}, function() {          
-		        console.log ('room list refreshed');
+		        trace ('step 5: room list refreshed');
 		    });		
-       		trace('available rooms: ' + JSON.stringify(s));
+       		trace('step 5a: available rooms: ' + JSON.stringify(s));
        		chrome.extension.sendMessage({action:"userlist", 'rooms': s}, function(response) {
-              trace('sending response to browser action');
+              //trace('step 6: sending response to browser action');
             });
     	});	 	
 	}
@@ -55,12 +62,12 @@ var prepare = function (useremail) {
 	//example of using a message handler from the inject scripts
 	chrome.extension.onMessage.addListener(
 	  function(request, sender, sendResponse) {
-	  	trace("message recieved " + JSON.stringify(request));
+	  	trace("internal chrome message recieved " + JSON.stringify(request));
 		if (request.action == "send") {
 			socket.emit('upload_syncdata', request);  
-			trace('syncdata sending..');
+			trace('step 7: syncdata sending to node.js..');
 			socket.on('trying_to_notify', function () {            
-				trace('trying_to_notify');
+				trace('step 8: node.js just has been recieved your link, now we are trying to notify ' + request.to);
 			});
 		}
 		if (request.action == "get_list") {
@@ -69,24 +76,24 @@ var prepare = function (useremail) {
 	  });
   
   //$().ready(function () {
-    trace('prepare function was executed with useremail=' + useremail);
+    trace('step 3: prepare function call with useremail=' + useremail);
 
     checkAvaibility();
     
     socket.on('connect', function () {  
-        trace('websocket is open');
+        trace('step 4: websocket is open');
         
       //  socket.on('ready', function (rooms) {            
       //  	//notify('connection successfull', "waiting for incoming request");
       //      trace('waiting for incoming sync request.. ' + JSON.stringify(rooms));
       //  });
         socket.on('download_syncdata', function (syncdata) {           
-           trace('syncdata downloaded.. ' + syncdata.href);           
-           chrome.tabs.create(	{ 'url' : syncdata.href });
+           trace('step 9: syncdata downloaded from node.js server ' + syncdata.href);           
+           openTab(	syncdata.href );
            socket.emit('download_complete', syncdata.from);            
         });
         socket.on('finish_sync', function () {
-           trace('operation complete \n=================\n\n');
+           trace('FINAL operation complete \n=================\n\n');
            chrome.extension.sendMessage({action:"complete"}, function(response) {
               trace(response);
            });
