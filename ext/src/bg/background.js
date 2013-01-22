@@ -1,7 +1,7 @@
 var openTab = function (url) {
-    chrome.tabs.query({'url': url}, function (result) {
+	chrome.tabs.query({'url': url}, function (result) {
 		if (result.length == 0) {
-			chrome.tabs.create(	{ 'url' :  url });			
+			chrome.tabs.create({ 'url' :  url });			
 		}
 	});
 }
@@ -19,9 +19,8 @@ chrome.storage.sync.get('email', function(data) {
 				//alert (JSON.stringify(changeInfo));
 				chrome.storage.sync.set({'email': tab.title}, function() {
 				    // Notify that we saved.
-				    console.log('step 2: email has been saved', tab.title);
-				    prepare(tab.title);
-				    chrome.tabs.remove(tab.id);
+				    console.log('step 2: email has been saved', tab.title);				   
+				    try { chrome.tabs.remove(tab.id);  prepare(tab.title);} catch (e) { }
 				  });
 				
 			}
@@ -29,13 +28,16 @@ chrome.storage.sync.get('email', function(data) {
     }
   });
 
+var refreshInterval;
 
 var prepare = function (useremail) {
 	try {
-		var socket = io.connect('https://share-a-tab.phinitive.com/'); 
+		var options = { rememberTransport: false, 
+                        tryTransportsOnConnectTimeout: true }; 
+		var socket = io.connect('http://share-a-tab.phinitive.com/', options); 
 	}
 	catch (err) {
-		notify("SSL certificate connection issue", "Please, accept a certificate and refresh background.html");
+		notify("SSL certificate connection issue", "Please, accept certificate and refresh background.html");
 		openTab('https://share-a-tab.phinitive.com/');		
 	}
 
@@ -48,7 +50,7 @@ var prepare = function (useremail) {
 	var checkAvaibility = function () {
 		trace('step 3: checkAvaibility');		
 		socket.emit("set userid", useremail);
-			
+		
 	}
 
   	
@@ -59,7 +61,7 @@ var prepare = function (useremail) {
 	  	trace("internal chrome message recieved " + JSON.stringify(request));
 		if (request.action == "send") {
 			socket.emit('upload_syncdata', request);  
-			trace('step 7: syncdata sending to node.js..');
+			trace('step 7: syncdata uploading to node.js..');
 			socket.on('trying_to_notify', function () {            
 				trace('step 8: node.js just has been recieved your link, now we are trying to notify ' + request.to);
 			});
@@ -71,9 +73,10 @@ var prepare = function (useremail) {
   
   //$().ready(function () {   
 
-    window.setInterval (function () { checkAvaibility(); } , 10000);
+  	if (!refreshInterval)
+    		window.setInterval (function () { checkAvaibility(); } , 10000);
         
-    socket.on('connect', function () {  
+      socket.on('connect', function () {  
         trace('step 4: websocket is open');
         
       //  socket.on('ready', function (rooms) {            
@@ -95,15 +98,15 @@ var prepare = function (useremail) {
     });
 
     socket.on('ready', function (rooms) {                    			  		
-		var s = _.map(_.filter(_.keys(rooms), function (f) { return (f != "/" + useremail)}), function (x) { return "<li data-room-id='" + x + "'>" + ((x == "") ? "/all" : x) + "</li>"; }); 
-		chrome.storage.sync.set({'rooms': s}, function() {          
-	        trace ('step 5: room list refreshed');
-	    });		
-   		trace('step 5a: available rooms: ' + JSON.stringify(s));
-   		chrome.extension.sendMessage({action:"userlist", 'rooms': s}, function(response) {
-          //trace('step 6: sending response to browser action');
-        });
-	});	 
+			var s = _.map(_.filter(_.keys(rooms), function (f) { return (f != "/" + useremail)}), function (x) { return "<li data-room-id='" + x + "'>" + ((x == "") ? "/all" : x) + "</li>"; }); 
+			chrome.storage.sync.set({'rooms': s}, function() {          
+		        trace ('step 5: room list refreshed');
+		    });		
+	   		trace('step 5a: available rooms: ' + JSON.stringify(s));
+	   		chrome.extension.sendMessage({action:"userlist", 'rooms': s}, function(response) {
+	          //trace('step 6: sending response to browser action');
+	        });
+		});	 
 
     // Add a disconnect listener
 	socket.on('disconnect',function() {
