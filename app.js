@@ -79,7 +79,7 @@ app.get('/oauth2callback',
     res.redirect('/');
   });
 
-//io.configure('production', function(){
+io.configure('production', function(){
 //    console.log("Server in production mode");
     io.enable('browser client minification');  // send minified client
     io.enable('browser client etag');          // apply etag caching logic based on version number
@@ -89,10 +89,10 @@ app.get('/oauth2callback',
      //   'websocket'
     //    , 'flashsocket'
     //     'htmlfile'
-        , 'xhr-polling'
-        , 'jsonp-polling'
+           'xhr-polling'
+//        , 'jsonp-polling'
     ]);
-//});
+});
 
 io.sockets.on('connection', function (socket) {
    
