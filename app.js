@@ -79,7 +79,7 @@ app.get('/oauth2callback',
     res.redirect('/');
   });
 
-io.configure('production', function(){
+io.configure(function(){
 //    console.log("Server in production mode");
     io.enable('browser client minification');  // send minified client
     io.enable('browser client etag');          // apply etag caching logic based on version number
@@ -113,7 +113,7 @@ io.sockets.on('connection', function (socket) {
   
 });
 /*
-do not work at windows 
+not working at windows 
 var db_options = { createIfMissing: true, errorIfExists: false }
 var db = levelup('./mydb', db_options);
 
