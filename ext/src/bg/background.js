@@ -8,13 +8,14 @@ var lockDownloading;
 var lastSent;
 
 var openTab = function (url) {
-    chrome.tabs.query({'url': url}, function (result) {
+    var matchUrl = url.split('#')[0] + "*";
+	chrome.tabs.query({'url': matchUrl, 'windowId' : chrome.windows.WINDOW_ID_CURRENT }, function (result) {
+		console.log ("match query " + matchUrl, " with result: " + JSON.stringify(result));
 		if (result.length == 0) {
 			chrome.tabs.create(	{ 'url' :  url });			
 		}
-		else {
-			console.log ("tab already open " + JSON.stringify(result));
-			chrome.tabs.highlight( { tabs : result[0].id})
+		else {			
+			chrome.tabs.update( result[0].id, {'active': true, 'url': url})
 		}
 	});
 }

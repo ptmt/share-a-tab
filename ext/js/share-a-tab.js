@@ -35,7 +35,7 @@ var refreshRooms = function () {
 
 var connectEvents = function () {
   $(".online-rooms li").on('click', function (e) {         
-               
+       $('.log').text('');        
        var share_with = $(this).data('room-id').replace('/','');
        console.log (share_with);    
        toggleLoader();
