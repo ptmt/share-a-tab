@@ -1,7 +1,20 @@
+// GLOBAL locks. I am sad about this:(
+
+var refreshInterval;
+var lockTabUpdating;
+var lockSending;
+var lockDownloading; 
+
+var lastSent;
+
 var openTab = function (url) {
     chrome.tabs.query({'url': url}, function (result) {
 		if (result.length == 0) {
 			chrome.tabs.create(	{ 'url' :  url });			
+		}
+		else {
+			console.log ("tab already open " + JSON.stringify(result));
+			chrome.tabs.highlight( { tabs : result[0].id})
 		}
 	});
 }
@@ -15,27 +28,28 @@ chrome.storage.sync.get('email', function(data) {
     	openTab('https://share-a-tab.phinitive.com/');
 
 		chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-			if (tab.url && tab.url == "https://share-a-tab.phinitive.com/" && changeInfo.status == "complete") {
-				//alert (JSON.stringify(changeInfo));
+			if (tab.url && tab.url == "https://share-a-tab.phinitive.com/" && changeInfo.status == "complete" && !lockTabUpdating) {
+				lockTabUpdating = true;
 				chrome.storage.sync.set({'email': tab.title}, function() {
-				    // Notify that we saved.
-				    console.log('step 2: email has been saved', tab.title);
-				    prepare(tab.title);
-				    chrome.tabs.remove(tab.id);
-				  });
-				
+				    // Notify that we saved.				 
+				  	prepare(tab.title); 
+				  	console.log('step 2: email has been saved', tab.title);	
+				  	chrome.tabs.remove(tab.id); 
+				  	lockTabUpdating = false;
+				  });				
 			}
 		});
     }
   });
 
-
 var prepare = function (useremail) {
 	try {
-		var socket = io.connect('https://share-a-tab.phinitive.com/'); 
+		var options = { rememberTransport: true, 
+                        tryTransportsOnConnectTimeout: true }; 
+		var socket = io.connect('http://share-a-tab.phinitive.com/', options); 
 	}
 	catch (err) {
-		notify("SSL certificate connection issue", "Please, accept a certificate and refresh background.html");
+		notify("SSL certificate connection issue", "Please, accept certificate and refresh background.html");
 		openTab('https://share-a-tab.phinitive.com/');		
 	}
 
@@ -47,8 +61,7 @@ var prepare = function (useremail) {
 
 	var checkAvaibility = function () {
 		trace('step 3: checkAvaibility');		
-		socket.emit("set userid", useremail);
-			
+		socket.emit("set userid", useremail);		
 	}
 
   	
@@ -58,11 +71,16 @@ var prepare = function (useremail) {
 	  function(request, sender, sendResponse) {
 	  	trace("internal chrome message recieved " + JSON.stringify(request));
 		if (request.action == "send") {
-			socket.emit('upload_syncdata', request);  
-			trace('step 7: syncdata sending to node.js..');
-			socket.on('trying_to_notify', function () {            
-				trace('step 8: node.js just has been recieved your link, now we are trying to notify ' + request.to);
-			});
+			if (!lockSending) {
+				lockSending = true;
+				request.from = useremail;
+				socket.emit('upload_syncdata', request);  
+				trace('step 7: syncdata uploading to node.js..');
+				socket.on('trying_to_notify', function () {            
+					trace('step 8: node.js just has been recieved your link, now we are trying to notify ' + request.to);
+					lockSending = false;
+				});
+			}
 		}
 		if (request.action == "get_list") {
 			checkAvaibility();
@@ -71,21 +89,24 @@ var prepare = function (useremail) {
   
   //$().ready(function () {   
 
-    window.setInterval (function () { checkAvaibility(); } , 10000);
+  	if (!refreshInterval) {
+  		console.log ('set interval');
+    	refreshInterval = window.setInterval (function () { checkAvaibility(); } , 100000);
+    }
         
     socket.on('connect', function () {  
-        trace('step 4: websocket is open');
-        
-      //  socket.on('ready', function (rooms) {            
-      //  	//notify('connection successfull', "waiting for incoming request");
-      //      trace('waiting for incoming sync request.. ' + JSON.stringify(rooms));
-      //  });        
-      });
+        trace('step 4: websocket is open');    
+    });
     
-    socket.on('download_syncdata', function (syncdata) {           
-       trace('step 9: syncdata downloaded from node.js server ' + syncdata.href);           
-       openTab(	syncdata.href );
-       socket.emit('download_complete', syncdata.from);            
+    socket.on('download_syncdata', function (syncdata) {   
+       if (lastSent != syncdata.href) {        	   
+	       trace('step 9: syncdata downloaded from node.js server ' + syncdata.href);           
+	       openTab(	syncdata.href );
+	       lastSent = syncdata.href;
+	       to = syncdata.to == "" ? "/all" : syncdata.to;
+	       notify(syncdata.from, "Shared with " + to);
+	   }
+	   socket.emit('download_complete', syncdata.from);            	       	       
     });
     socket.on('finish_sync', function () {
        trace('FINAL operation complete \n=================\n\n');
@@ -96,9 +117,14 @@ var prepare = function (useremail) {
 
     socket.on('ready', function (rooms) {                    			  		
 		var s = _.map(_.filter(_.keys(rooms), function (f) { return (f != "/" + useremail)}), function (x) { return "<li data-room-id='" + x + "'>" + ((x == "") ? "/all" : x) + "</li>"; }); 
-		chrome.storage.sync.set({'rooms': s}, function() {          
-	        trace ('step 5: room list refreshed');
-	    });		
+		chrome.storage.sync.get('rooms', function(data) {  	        
+          if (data.rooms != rooms) {
+          	chrome.storage.sync.set({'rooms': s}, function() {          
+		        trace ('step 5: room list refreshed');
+		    });		
+          }		        
+	    });
+		
    		trace('step 5a: available rooms: ' + JSON.stringify(s));
    		chrome.extension.sendMessage({action:"userlist", 'rooms': s}, function(response) {
           //trace('step 6: sending response to browser action');
@@ -109,10 +135,7 @@ var prepare = function (useremail) {
 	socket.on('disconnect',function() {
 	  console.log('The client has disconnected');
 	});
-    
- // });
-
-	
+ 
 }
 
 
@@ -124,4 +147,5 @@ var notify = function (title, body) {
 	  body  // notification body text
 	);
 	notification.show();
+	setTimeout(function() {notification.cancel();}, 5000);
 }

@@ -7,44 +7,39 @@ var getCurrentTab = function (callback) {
     });
   };
 
+var toggleLoader = function () {
+       $('#mainPopup').toggleClass('disabled');
+       $('#loaderImage').toggle();
+}
 chrome.extension.onMessage.addListener(
     function(request, sender, sendResponse) {      
       console.log("message recieved: " + JSON.stringify(request));
-      if (request.action == "complete") {
-         $('#loaderImage').toggle();
-         $('#mainPopup').toggleClass('disabled');        
+      if (request.action == "complete") {        
+         $('.log').text('sent');
       }
       if (request.action == "userlist") {
          console.log(JSON.stringify(request.rooms));
          $('.online-rooms').html(request.rooms);
-         connectEvents();
-         chrome.storage.sync.set({'rooms': request.rooms}, function() {          
-            console.log ('room list refreshed');
-         });
-         $('#loaderImage').toggle();
-         $('#mainPopup').toggleClass('disabled');   
+         connectEvents();        
+   //      toggleLoader();
       }
     });
 
 var refreshRooms = function () {
   chrome.extension.sendMessage({action:"get_list"}, function(response) {
-    $('#loaderImage').toggle();
-    $('#mainPopup').toggleClass('disabled');        
+    toggleLoader();
+    setTimeout(function() {toggleLoader();}, 2000);       
     console.log("send get_list, response: " + response);
   });
 }
 
 var connectEvents = function () {
   $(".online-rooms li").on('click', function (e) {         
-       console.log (e);
-            
-       var share_with = $(this).data('room-id');
-      // chrome.storage.sync.set({'share_with': share_with}, function() {          
-      //      console.log ('saved to cloud storage');
-      // });
-
-       $('#mainPopup').toggleClass('disabled');
-       $('#loaderImage').toggle();
+               
+       var share_with = $(this).data('room-id').replace('/','');
+       console.log (share_with);    
+       toggleLoader();
+       setTimeout(function() {toggleLoader();}, 3000);       
        chrome.storage.sync.get('email', function(data) { 
          getCurrentTab(function (tab) {
            var syncdata = {
@@ -67,7 +62,7 @@ var connectEvents = function () {
 
     chrome.storage.sync.get('rooms', function(data) {  
         if (data.rooms)   {
-          console.log ('room is not empty?' + JSON.stringify(data.rooms));
+          console.log ('rooms ' + JSON.stringify(data.rooms));
           $('.online-rooms').html(data.rooms);                   
           connectEvents();
         }

@@ -112,7 +112,7 @@ io.sockets.on('connection', function (socket) {
   
 });
 /*
-not working at windows 
+leveldb not working at windows 
 var db_options = { createIfMissing: true, errorIfExists: false }
 var db = levelup('./mydb', db_options);
 

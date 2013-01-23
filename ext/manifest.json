@@ -1,6 +1,6 @@
 {
   "name": "__MSG_name__",
-  "version": "0.3.5",
+  "version": "0.4.0",
   "manifest_version": 2,
   "description": "__MSG_desc__",
   "homepage_url": "http://share-a-tab.phinitive.com/home",
@@ -17,7 +17,7 @@
   "options_page": "src/options/index.html",
   "browser_action": {
     "default_icon": "icons/icon19.png",
-    "default_title": "share a tab action",
+    "default_title": "share a tab",
     "default_popup": "src/browser_action/browser_action.html"
   },
   "permissions": [
