@@ -8,11 +8,11 @@ Also Available at [Google Chrome Store] (https://chrome.google.com/webstore/deta
 
 ##How it works
 
-First of all, `background.html` try to authorize you with your Google Account. 
+At first start, `background.html` try to authorize you with your Google Account and open new tab. 
 
-After socket connection with node.js server is open (xhr polling for example) `browser_action.html` refresh room list and subscribe you to the personal room.
+After authentification, tab should be close, socket connection with node.js server initialize (transport may be diffirent, xhr polling for example), `browser_action.html` refresh room list, save it to Cloud Google Chrome Storage and subscribe you to all public rooms.
 
-When you decide to share a tab, `browser_action.html` send internal chrome message to `background.html` where socket is already open. Server recieve synchronization data (fields like to, href, etc.) and sent it to specially room. Other Chrome instance make query to all opened tabs, if query returning nothing, Chrome creating new tab, update one otherwise.
+When you decide to share a tab and click on room name, `browser_action.html` send internal chrome message to `background.html` where socket is already open. Server recieve synchronization data (fields like to, href, etc.) and sent it to choosen room. Other Chrome instance make query to all opened tabs, if query returning nothing, Chrome creating new tab, update one otherwise.
 
 ##TODO:
 
