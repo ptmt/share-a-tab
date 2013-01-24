@@ -2,7 +2,7 @@
 
 Share-a-Tab is a Chrome plugin built with lightweight Node.js app as a backend. #Socket.io #Express #Azure 
 
-Recommend to use your own node.js server for privacy at this moment. 
+We use SSL, but  recommended to use your own node.js server cause privacy issues with transfering data at this moment. 
 
 Also Available at [Google Chrome Store] (https://chrome.google.com/webstore/detail/share-a-tab/hbkcjcepcamiepahcheeoggfifmljdna)
 
